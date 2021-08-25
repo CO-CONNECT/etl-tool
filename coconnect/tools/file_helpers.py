@@ -81,9 +81,29 @@ class InputData:
         self.__file_readers[key] = obj
         
     
-    
 
-def load_json(f_in):
+def flatten_json(data):
+    cdm = data['cdm']
+
+    for destination_table,rule_set in cdm.items():
+        print (destination_table)
+        df = pd.DataFrame.from_records(rule_set)
+        for colname in df.columns:
+            #get a list of 
+            column = df.loc[:,colname].values.tolist()
+            column_as_str_list =  [
+                json.dumps(item)
+                for item in column
+            ]
+            unique = [
+                json.loads(str_dict)
+                for str_dict in list(set(column_as_str_list))
+            ]
+        print (unique)
+
+        exit(0)
+
+def load_json(f_in, flatten=True):
     try:
         data = json.load(open(f_in))
     except FileNotFoundError as err:
@@ -96,6 +116,9 @@ def load_json(f_in):
         except FileNotFoundError:
             raise FileNotFoundError(err)
 
+    if flatten:
+        data = flatten_json(data)
+        
     return data
 
 
